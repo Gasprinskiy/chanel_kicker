@@ -18,8 +18,8 @@ func NewKicker(conn *grpc.ClientConn) repository.Kicker {
 	}
 }
 
-func (r *kickerRepo) KickExpiredSubsUsers(ctx context.Context, tgIDList []int64) error {
-	_, err := r.client.KickExpiredSubsUsers(ctx, &kicker.KickExpiredSubsUsersRequest{
+func (r *kickerRepo) KickExpiredSubsUsers(tgIDList []int64) error {
+	_, err := r.client.KickExpiredSubsUsers(context.Background(), &kicker.KickExpiredSubsUsersRequest{
 		TgIds: tgIDList,
 	})
 

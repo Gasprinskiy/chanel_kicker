@@ -2,6 +2,11 @@ package main
 
 import (
 	"chanel_kicker/src/config"
+	"chanel_kicker/src/external/cron"
+	"chanel_kicker/src/internal/transaction"
+	"chanel_kicker/src/rimport"
+	"chanel_kicker/src/tools/logger"
+	"chanel_kicker/src/uimport"
 
 	"log"
 
@@ -30,14 +35,14 @@ func main() {
 	}
 
 	// инициализация логгера
-	// hook := logger.NewPostgresHook(pgdb)
-	// logger, err := logger.InitLogger(hook)
-	// if err != nil {
-	// 	log.Fatalln("Не удалось инициализировать логгер:", err)
-	// }
+	hook := logger.NewPostgresHook(pgdb)
+	logger, err := logger.InitLogger(hook)
+	if err != nil {
+		log.Fatalln("Не удалось инициализировать логгер:", err)
+	}
 
 	// инициализация session manager
-	// sessionManager := transaction.NewSQLSessionManager(pgdb)
+	sessionManager := transaction.NewSQLSessionManager(pgdb)
 
 	// инициализация grpc соеденения
 	grpcConn, err := grpc.NewClient(config.GRPCAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -45,4 +50,15 @@ func main() {
 		log.Panic("ошибка при подключении к grpc серверу: ", err)
 	}
 	defer grpcConn.Close()
+
+	// инициализация репо
+	ri := rimport.NewRepositoryImports(grpcConn)
+
+	// инициализация usecase
+	ui := uimport.NewUsecaseImport(ri, logger)
+
+	//
+	cron := cron.NewKickerCron(logger, sessionManager, ui)
+
+	cron.KickExpiredSubsUsers()
 }

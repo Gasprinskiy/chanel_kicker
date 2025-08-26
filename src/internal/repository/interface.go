@@ -1,7 +1,13 @@
 package repository
 
-import "context"
+import (
+	"chanel_kicker/src/internal/transaction"
+)
 
 type Kicker interface {
-	KickExpiredSubsUsers(ctx context.Context, tgIDList []int64) error
+	KickExpiredSubsUsers(tgIDList []int64) error
+}
+
+type Purchases interface {
+	LoadExpiredPurchasesUserIDS(ts transaction.Session) ([]int64, error)
 }
