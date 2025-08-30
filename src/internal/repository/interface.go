@@ -1,11 +1,12 @@
 package repository
 
 import (
+	"chanel_kicker/src/internal/entity/chanel_kicker"
 	"chanel_kicker/src/internal/transaction"
 )
 
 type Kicker interface {
-	KickExpiredSubsUsers(tgIDList []int64) error
+	KickExpiredSubsUsers(params []chanel_kicker.KickUserParam) error
 }
 
 type Purchases interface {
